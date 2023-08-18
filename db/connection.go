@@ -33,7 +33,7 @@ func Connect() error {
 		return err
 	}
 
-	err = DB.AutoMigrate(&model.Task{}) // Setup other models here
+	err = DB.AutoMigrate(&model.User{}, &model.Transaction{})
 	if err != nil {
 		return err
 	}

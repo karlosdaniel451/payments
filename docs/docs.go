@@ -16,9 +16,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/tasks": {
+        "/users": {
             "get": {
-                "description": "Get all Tasks",
+                "description": "Get all Users.",
                 "consumes": [
                     "application/json"
                 ],
@@ -26,23 +26,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Tasks"
+                    "Users"
                 ],
-                "summary": "Get all Tasks.",
+                "summary": "Get all Users.",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Task"
+                                "$ref": "#/definitions/model.User"
                             }
                         }
                     }
                 }
             },
             "post": {
-                "description": "Create a new Task.",
+                "description": "Create a new User.",
                 "consumes": [
                     "application/json"
                 ],
@@ -50,17 +50,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Tasks"
+                    "Users"
                 ],
-                "summary": "Create a new Task.",
+                "summary": "Create a new User.",
                 "parameters": [
                     {
-                        "description": "Task",
-                        "name": "task",
+                        "description": "User",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.User"
                         }
                     }
                 ],
@@ -68,24 +68,47 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.Task"
+                            "$ref": "#/definitions/model.User"
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Delete a Task by its id.",
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "Get a User by its id.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Tasks"
+                    "Users"
                 ],
-                "summary": "Delete a Task and, in case there is no Task with the given ID,",
+                "summary": "Get a User by its id.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a User by its id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a User and, in case there is no User with the given ID,",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Id of the Task be deleted",
+                        "description": "Id of the User be deleted",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -94,29 +117,6 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                }
-            }
-        },
-        "/tasks/{id}": {
-            "get": {
-                "description": "Get a Task by its id.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Get a Task by its id.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Task"
-                        }
                     },
                     "404": {
                         "description": "Not Found"
@@ -138,7 +138,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Task": {
+        "model.Transaction": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -147,19 +147,77 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "description": {
+                "id": {
+                    "type": "integer"
+                },
+                "payee_id": {
+                    "type": "integer"
+                },
+                "payer_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "cnpj": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "full_name": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
+                "payments_received": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Transaction"
+                    }
+                },
+                "payments_sent": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Transaction"
+                    }
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "user_type": {
+                    "$ref": "#/definitions/model.UserType"
                 }
             }
+        },
+        "model.UserType": {
+            "type": "string",
+            "enum": [
+                "COMMON",
+                "SHOP_KEEPER"
+            ],
+            "x-enum-varnames": [
+                "Common",
+                "ShopKeeper"
+            ]
         }
     }
 }`
@@ -170,8 +228,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Go REST API Template",
-	Description:      "Template for a RESTful web service in Go with Fiber.",
+	Title:            "Payments",
+	Description:      "Payments RESTful Web Service with Go, Fiber and GORM",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

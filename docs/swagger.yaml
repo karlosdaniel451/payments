@@ -7,32 +7,109 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
-  model.Task:
+  model.Transaction:
     properties:
       createdAt:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
-      description:
+      id:
+        type: integer
+      payee_id:
+        type: integer
+      payer_id:
+        type: integer
+      updatedAt:
+        type: string
+      value:
+        type: number
+    type: object
+  model.User:
+    properties:
+      cnpj:
+        type: string
+      cpf:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email_address:
+        type: string
+      full_name:
         type: string
       id:
         type: integer
-      name:
-        type: string
+      payments_received:
+        items:
+          $ref: '#/definitions/model.Transaction'
+        type: array
+      payments_sent:
+        items:
+          $ref: '#/definitions/model.Transaction'
+        type: array
       updatedAt:
         type: string
+      user_type:
+        $ref: '#/definitions/model.UserType'
     type: object
+  model.UserType:
+    enum:
+    - COMMON
+    - SHOP_KEEPER
+    type: string
+    x-enum-varnames:
+    - Common
+    - ShopKeeper
 info:
   contact: {}
-  description: Template for a RESTful web service in Go with Fiber.
-  title: Go REST API Template
+  description: Payments RESTful Web Service with Go, Fiber and GORM
+  title: Payments
   version: 0.0.1
 paths:
-  /tasks:
-    delete:
-      description: Delete a Task by its id.
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get all Users.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+      summary: Get all Users.
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new User.
       parameters:
-      - description: Id of the Task be deleted
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Create a new User.
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Delete a User by its id.
+      parameters:
+      - description: Id of the User be deleted
         in: path
         name: id
         required: true
@@ -44,59 +121,21 @@ paths:
           description: No Content
         "404":
           description: Not Found
-      summary: Delete a Task and, in case there is no Task with the given ID,
+      summary: Delete a User and, in case there is no User with the given ID,
       tags:
-      - Tasks
+      - Users
     get:
-      consumes:
-      - application/json
-      description: Get all Tasks
+      description: Get a User by its id.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.Task'
-            type: array
-      summary: Get all Tasks.
-      tags:
-      - Tasks
-    post:
-      consumes:
-      - application/json
-      description: Create a new Task.
-      parameters:
-      - description: Task
-        in: body
-        name: task
-        required: true
-        schema:
-          $ref: '#/definitions/model.Task'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.Task'
-      summary: Create a new Task.
-      tags:
-      - Tasks
-  /tasks/{id}:
-    get:
-      description: Get a Task by its id.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Task'
+            $ref: '#/definitions/model.User'
         "404":
           description: Not Found
-      summary: Get a Task by its id.
+      summary: Get a User by its id.
       tags:
-      - Tasks
+      - Users
 swagger: "2.0"

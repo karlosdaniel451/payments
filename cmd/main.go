@@ -16,15 +16,18 @@ import (
 
 var port = os.Getenv("API_PORT")
 
-// @title Go REST API Template
+// @title Payments
 // @version 0.0.1
-// @description Template for a RESTful web service in Go with Fiber.
+// @description Payments RESTful Web Service with Go, Fiber and GORM
 func main() {
-	var _ usecase.TaskUseCase = usecase.TaskUseCaseImpl{}
-	var _ repository.TaskRepository = repository.TaskRepositoryDB{}
+	var _ usecase.UserUseCase = usecase.UserUseCaseImpl{}
+	var _ repository.UserRepository = repository.UserRepositoryDB{}
+
+	var _ usecase.TransactionUseCase = usecase.TransactionUseCaseImpl{}
+	var _ repository.TransactionRepository = repository.TransactionRepositoryDB{}
 
 	app := fiber.New(fiber.Config{
-		AppName:           "Simple Go RESTful API with Fiber and GORM",
+		AppName:           "Payments RESTful Web Service with Go, Fiber and GORM",
 		EnablePrintRoutes: true,
 	})
 
@@ -35,11 +38,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	taskRepository := repository.NewTaskRepositoryDB(db.DB)
-	taskUseCase := usecase.NewTaskUseCaseImpl(taskRepository)
-	taskController := controller.NewTaskController(taskUseCase)
+	userRepository := repository.NewUserRepositoryDB(db.DB)
+	userUseCase := usecase.NewUserUseCaseImpl(userRepository)
+	userController := controller.NewUserController(userUseCase)
 
-	router.Setup(app, &taskController)
+	router.Setup(app, &userController)
 
 	log.Fatal(app.Listen(":" + port))
 }
